@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"markdown-service/internal/markdown"
 	"net/http"
 
@@ -12,7 +13,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins:     []string{"https://*", "http://*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
@@ -57,6 +57,9 @@ func (s *Server) parseMarkdown(c echo.Context) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println(s.s3Bucket)
+	fmt.Println(s.s3Region)
 
 	return c.String(http.StatusOK, string(buffer))
 }
