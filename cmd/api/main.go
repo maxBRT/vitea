@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"markdown-service/internal/server"
+	"vitea/internal/server"
 )
 
 func gracefulShutdown(apiServer *http.Server, done chan bool) {

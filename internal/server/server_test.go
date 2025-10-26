@@ -1,4 +1,4 @@
-package markdown
+package server
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ func TestExtractHTML(t *testing.T) {
 	// OK
 	t.Run("Extract HTML from Markdown file", func(t *testing.T) {
 		file := []byte("# Hello World")
-		buffer, err := ExtractHTML(bytes.NewReader(file))
+		buffer, err := extractHTML(bytes.NewReader(file))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -20,7 +20,7 @@ func TestExtractHTML(t *testing.T) {
 	// Empty file
 	t.Run("Extract HTML from invalid Markdown file", func(t *testing.T) {
 		var file []byte
-		_, err := ExtractHTML(bytes.NewReader(file))
+		_, err := extractHTML(bytes.NewReader(file))
 		if err != nil {
 			t.Fatal(err)
 		}

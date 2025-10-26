@@ -1,4 +1,4 @@
-module markdown-service
+module vitea
 
 go 1.25.3
 

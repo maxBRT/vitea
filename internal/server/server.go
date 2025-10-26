@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"time"
 
-	"markdown-service/internal/database"
+	"vitea/internal/database"
 )
 
 type Server struct {
