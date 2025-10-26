@@ -1,77 +1,34 @@
-# ---------------------------------------------------------------------
-# Go build and binary artifacts
-# ---------------------------------------------------------------------
-/bin/
-/build/
-/dist/
-/out/
+# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+
+# Test binary, built with "go test -c"
 *.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Go coverage and profiling files
-*.prof
-*.cov
-*.cover
-*.testresult
-*.tmp
+# Dependency directories (remove the comment below to include it)
+# vendor/
 
-# ---------------------------------------------------------------------
-# Dependency and module cache
-# ---------------------------------------------------------------------
-# Go modules cache (local only, not vendored)
-go.sum
-# Uncomment below if you vendor dependencies
-# /vendor/
+# Go workspace file
+go.work
+tmp/
 
-# ---------------------------------------------------------------------
-# Logs and temporary files
-# ---------------------------------------------------------------------
-*.log
-*.pid
-*.seed
-*.bak
-*.swp
-*.swo
-*.orig
-*.tmp
-*.DS_Store
+# IDE specific files
+.vscode
+.idea
 
-# ---------------------------------------------------------------------
-# IDE and Editor files
-# ---------------------------------------------------------------------
-.vscode/
-.idea/
-*.iml
-*.sublime-project
-*.sublime-workspace
-*.code-workspace
-
-# ---------------------------------------------------------------------
-# Environment and configuration
-# ---------------------------------------------------------------------
+# .env file
 .env
-.env.*
-*.local
-.secret
-*.key
 
-# ---------------------------------------------------------------------
-# OS and tooling
-# ---------------------------------------------------------------------
-Thumbs.db
+# Project build
+main
+*templ.go
+
+# OS X generated file
 .DS_Store
-.trash/
-.cache/
-node_modules/
 
-# ---------------------------------------------------------------------
-# Tests / Mock data
-# ---------------------------------------------------------------------
-/testdata/*.db
-/testdata/*.sqlite
-/testdata/*.json
