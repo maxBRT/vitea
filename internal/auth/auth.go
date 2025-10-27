@@ -9,6 +9,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -83,4 +84,24 @@ func GetBearerToken(headers http.Header) (string, error) {
 	}
 
 	return splitAuth[1], nil
+}
+
+func JWTMiddleware(tokenSecret string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			tokenString, err := GetBearerToken(c.Request().Header)
+			if err != nil {
+				return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+			}
+
+			userID, err := ValidateJWT(tokenString, tokenSecret)
+			if err != nil {
+				return c.JSON(http.StatusUnauthorized, map[string]string{"error": err.Error()})
+			}
+
+			c.Set("user_id", userID)
+
+			return next(c)
+		}
+	}
 }

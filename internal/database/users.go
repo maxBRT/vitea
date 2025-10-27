@@ -1,15 +1,19 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
-	ID             int    `json:"id"`
-	FirstName      string `json:"first_name"`
-	LastName       string `json:"last_name"`
-	Email          string `json:"email"`
-	HashedPassword string `json:"hashed_password"`
-	CreatedAt      string `json:"created_at"`
-	UpdatedAt      string `json:"updated_at"`
+	ID             uuid.UUID `json:"id"`
+	FirstName      string    `json:"first_name"`
+	LastName       string    `json:"last_name"`
+	Email          string    `json:"email"`
+	HashedPassword string    `json:"hashed_password"`
+	CreatedAt      string    `json:"created_at"`
+	UpdatedAt      string    `json:"updated_at"`
 }
 
 type UserRepository struct {
@@ -18,6 +22,20 @@ type UserRepository struct {
 
 func NewUserRepository(db *sql.DB) *UserRepository {
 	return &UserRepository{db: db}
+}
+
+func (r *UserRepository) FindByEmail(email string) (User, error) {
+	var user User
+	err := r.db.QueryRow("SELECT * FROM users WHERE email = $1", email).Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.HashedPassword,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	return user, err
 }
 
 func (r *UserRepository) GetAll() ([]User, error) {
@@ -47,7 +65,7 @@ func (r *UserRepository) GetAll() ([]User, error) {
 	return users, err
 }
 
-func (r *UserRepository) Get(id int) (User, error) {
+func (r *UserRepository) Get(id uuid.UUID) (User, error) {
 	var user User
 	err := r.db.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(
 		&user.ID,
@@ -63,7 +81,8 @@ func (r *UserRepository) Get(id int) (User, error) {
 
 func (r *UserRepository) Create(user User) error {
 	_, err := r.db.Exec(
-		"INSERT INTO users (first_name, last_name, email, hashed_password) VALUES ($1, $2, $3, $4)",
+		"INSERT INTO users (id, first_name, last_name, email, hashed_password) VALUES ($1, $2, $3, $4, $5)",
+		user.ID,
 		user.FirstName,
 		user.LastName,
 		user.Email,
