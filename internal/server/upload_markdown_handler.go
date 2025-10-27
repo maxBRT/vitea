@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"vitea/internal/database"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
@@ -43,7 +44,18 @@ func (s *Server) UploadMarkdownHandler(c echo.Context) error {
 	}
 	s.s3Client.PutObject(context.Background(), &obj)
 
-	return c.String(http.StatusOK, string(buffer))
+	resume := database.Resume{
+		S3Key:  s3Key,
+		UserID: 1,
+	}
+
+	repo := database.NewResumesRepository(s.db.DB())
+	err = repo.Create(resume)
+	if err != nil {
+		return err
+	}
+
+	return c.String(http.StatusOK, "OK")
 }
 
 func extractHTML(file io.Reader) ([]byte, error) {

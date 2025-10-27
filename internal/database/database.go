@@ -18,14 +18,26 @@ type Service interface {
 	// Health returns a map of health status information.
 	// The keys and values in the map are service-specific.
 	Health() map[string]string
-
+	// Returns the underlying database connection.
+	DB() *sql.DB
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
 }
 
+func (s *service) DB() *sql.DB {
+	return s.db
+}
+
 type service struct {
 	db *sql.DB
+}
+
+type Repository interface {
+	Get(id int) (Resume, error)
+	Create(resume Resume) error
+	Update(resume Resume) error
+	Delete(id int) error
 }
 
 var (
