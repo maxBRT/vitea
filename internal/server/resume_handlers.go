@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"vitea/internal/database"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -14,7 +15,7 @@ import (
 	"github.com/yuin/goldmark"
 )
 
-func (s *Server) UploadMarkdownHandler(c echo.Context) error {
+func (s *Server) CreateResumeHandler(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
@@ -58,6 +59,16 @@ func (s *Server) UploadMarkdownHandler(c echo.Context) error {
 	return c.String(http.StatusOK, "OK")
 }
 
+func (s *Server) GetResumesHandler(c echo.Context) error {
+	repo := database.NewResumesRepository(s.db.DB())
+	resumes, err := repo.GetAll()
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, resumes)
+}
+
 func extractHTML(file io.Reader) ([]byte, error) {
 	content, err := io.ReadAll(file)
 	if err != nil {
@@ -72,4 +83,19 @@ func extractHTML(file io.Reader) ([]byte, error) {
 	}
 
 	return buffer.Bytes(), nil
+}
+
+func (s *Server) DeleteResumeHandler(c echo.Context) error {
+	id := c.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return err
+	}
+
+	repo := database.NewResumesRepository(s.db.DB())
+	err = repo.Delete(idInt)
+	if err != nil {
+		return err
+	}
+	return c.String(http.StatusOK, "OK")
 }

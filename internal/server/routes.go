@@ -18,11 +18,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-	e.GET("/users", s.GetUsersHandler)
+
+	e.GET("/users", s.ListUsersHandler)
+	e.GET("/users/:id", s.GetUserHandler)
 	e.POST("/users", s.CreateUserHandler)
+	e.DELETE("/users/:id", s.DeleteUserHandler)
 
 	e.GET("/resumes", s.GetResumesHandler)
-	e.POST("/resumes", s.UploadMarkdownHandler)
+	e.POST("/resumes", s.CreateResumeHandler)
+	e.DELETE("/resumes/:id", s.DeleteResumeHandler)
+
 	e.GET("/health", s.healthHandler)
 
 	return e
