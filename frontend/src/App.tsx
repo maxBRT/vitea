@@ -3,6 +3,7 @@ import Landing from './pages/Landing.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 import Register from './pages/Register.tsx';
 import Login from './pages/Login.tsx';
+import ProtectedRoute from './components/protectedRoute.tsx';
 
 function App() {
     return (
@@ -10,7 +11,9 @@ function App() {
             <BrowserRouter >
                 <Routes >
                     <Route path="/" element={<Landing />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                    </Route>
                     <Route path="/register" element={<Register />} />
                     <Route path="/login" element={<Login />} />
                 </Routes >

@@ -2,6 +2,7 @@ import { LoginForm } from "@/components/login-form";
 import NavBar from "@/components/ui/navbar";
 
 export default function Login() {
+
     return (
         <>
             <div className="h-screen w-full max-w-3xl">

@@ -41,6 +41,9 @@ export default function NavBar() {
                 {/* Navigation Buttons */}
                 <div className="flex items-center gap-3">
                     <Button
+                        onClick={() => {
+                            navigate("/login")
+                        }}
                         variant="ghost"
                         size="sm"
                         className="text-gray-700 hover:text-blue-600 transition-colors"

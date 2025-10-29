@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,6 +21,38 @@ export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const navigate = useNavigate()
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const loginData = {
+            email,
+            password,
+        }
+        try {
+            const response = await fetch("/api/auth/login", {
+                method: "POST",
+                body: JSON.stringify(loginData),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            if (!response.ok) {
+                const errorText = await response.text()
+                console.error("Login failed:", errorText)
+                alert("Login failed. Please try again.")
+                return
+            }
+            const data = await response.json()
+            localStorage.setItem("access_token", data.access_token)
+            navigate("/dashboard")
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
@@ -29,14 +63,15 @@ export function LoginForm({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <FieldGroup>
                             <Field>
                                 <FieldLabel htmlFor="email">Email</FieldLabel>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="m@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                     required
                                 />
                             </Field>
@@ -50,7 +85,7 @@ export function LoginForm({
                                         Forgot your password?
                                     </a>
                                 </div>
-                                <Input id="password" type="password" required />
+                                <Input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
                             </Field>
                             <Field>
                                 <Button type="submit">Login</Button>
