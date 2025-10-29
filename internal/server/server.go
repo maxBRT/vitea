@@ -16,12 +16,14 @@ import (
 )
 
 type Server struct {
-	port      int
-	s3Bucket  string
-	s3Region  string
-	s3Client  *s3.Client
-	jwtSecret string
-	db        database.Service
+	port        int
+	s3Bucket    string
+	s3Region    string
+	s3Client    *s3.Client
+	jwtSecret   string
+	baseURL     string
+	frontendURL string
+	db          database.Service
 }
 
 func NewServer() *http.Server {
@@ -39,18 +41,29 @@ func NewServer() *http.Server {
 	if secret == "" {
 		log.Fatal("JWT_SECRET is not set")
 	}
+	baseURL := os.Getenv("BASE_URL")
+	if baseURL == "" {
+		log.Fatal("BASE_URL is not set")
+	}
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		log.Fatal("FRONTEND_URL is not set")
+	}
+
 	config, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(os.Getenv("S3_REGION")))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	NewServer := &Server{
-		port:      port,
-		s3Bucket:  bucket,
-		s3Region:  region,
-		s3Client:  s3.NewFromConfig(config),
-		jwtSecret: secret,
-		db:        database.New(),
+		port:        port,
+		s3Bucket:    bucket,
+		s3Region:    region,
+		s3Client:    s3.NewFromConfig(config),
+		jwtSecret:   secret,
+		baseURL:     baseURL,
+		frontendURL: frontendURL,
+		db:          database.New(),
 	}
 
 	// Declare Server config

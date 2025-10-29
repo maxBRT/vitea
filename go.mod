@@ -15,6 +15,8 @@ require (
 	github.com/yuin/goldmark v1.7.13
 )
 
+require github.com/resend/resend-go/v2 v2.28.0
+
 require (
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect

@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"vitea/internal/auth"
+	"vitea/internal/database"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,22 +20,42 @@ func (s *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
-	authRequired := e.Group("")
-	authRequired.Use(auth.JWTMiddleware(s.jwtSecret))
+	api := e.Group("/api")
 
-	authRequired.GET("/users/:id", s.GetUserHandler)
-	authRequired.DELETE("/users/:id", s.DeleteUserHandler)
-	authRequired.POST("/resumes", s.CreateResumeHandler)
-	authRequired.DELETE("/resumes/:id", s.DeleteResumeHandler)
+	api.GET("/verify/:token", s.VerifyHandler)
+	api.POST("/auth/login", s.LoginHandler)
+	api.POST("/users", s.CreateUserHandler)
+	api.GET("/users", s.ListUsersHandler)
+	api.GET("/resumes", s.GetResumesHandler)
+	api.GET("/health", s.healthHandler)
 
-	e.POST("/auth/login", s.LoginHandler)
-	e.POST("/users", s.CreateUserHandler)
-	e.GET("/users", s.ListUsersHandler)
-	e.GET("/resumes", s.GetResumesHandler)
+	secure := api.Group("")
+	secure.Use(auth.JWTMiddleware(s.jwtSecret))
 
-	e.GET("/health", s.healthHandler)
+	secure.GET("/users/:id", s.GetUserHandler)
+	api.DELETE("/users/:id", s.DeleteUserHandler)
+	secure.POST("/resumes", s.CreateResumeHandler)
+	secure.DELETE("/resumes/:id", s.DeleteResumeHandler)
 
 	return e
+}
+
+func (s *Server) VerifyHandler(c echo.Context) error {
+	tokenString := c.Param("token")
+	userID, err := auth.ValidateJWT(tokenString, s.jwtSecret)
+	if err != nil {
+		return err
+	}
+
+	repo := database.NewUserRepository(s.db.DB())
+	if err := repo.Verify(userID); err != nil {
+		return err
+	}
+	if err := repo.DeleteVerifyLink(userID); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusFound, s.frontendURL)
 }
 
 func (s *Server) healthHandler(c echo.Context) error {
