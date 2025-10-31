@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS user_verify_link (
     user_id UUID NOT NULL,
     token VARCHAR(1000) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (user_id),
+    FOREIGN KEY (user_id) references users(id) ON DELETE CASCADE
 );
 -- +goose StatementEnd
 

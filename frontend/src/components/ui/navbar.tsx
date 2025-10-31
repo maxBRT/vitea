@@ -9,7 +9,7 @@ export default function NavBar() {
 
     return (
         <div className="flex justify-center bg-transparent">
-            <nav className="fixed rounded-2xl top-0 z-50 flex items-center justify-between w-full max-w-7xl px-6 md:px-10 py-3 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
+            <nav className="fixed  top-0 z-50 flex items-center justify-between w-full px-6 md:px-10 py-3 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm transition-all duration-300">
 
                 {/* Logo */}
                 <div className="flex items-center gap-2 hover:opacity-90 transition-opacity">

@@ -7,7 +7,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"vitea/internal/database"
+	"vitea/internal/database/sqlc"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/google/uuid"
@@ -16,6 +16,20 @@ import (
 )
 
 func (s *Server) CreateResumeHandler(c echo.Context) error {
+	idVal := c.Get("user_id")
+	if idVal == nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+	idStr, ok := idVal.(string)
+	if !ok {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	userID, err := uuid.Parse(idStr)
+	if err != nil {
+		return err
+	}
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
@@ -45,13 +59,10 @@ func (s *Server) CreateResumeHandler(c echo.Context) error {
 	}
 	s.s3Client.PutObject(context.Background(), &obj)
 
-	resume := database.Resume{
+	_, err = s.db.Queries().CreateResume(c.Request().Context(), sqlc.CreateResumeParams{
 		S3Key:  s3Key,
-		UserID: 1,
-	}
-
-	repo := database.NewResumesRepository(s.db.DB())
-	err = repo.Create(resume)
+		UserID: userID,
+	})
 	if err != nil {
 		return err
 	}
@@ -60,8 +71,7 @@ func (s *Server) CreateResumeHandler(c echo.Context) error {
 }
 
 func (s *Server) GetResumesHandler(c echo.Context) error {
-	repo := database.NewResumesRepository(s.db.DB())
-	resumes, err := repo.GetAll()
+	resumes, err := s.db.Queries().GetAllResumes(c.Request().Context())
 	if err != nil {
 		return err
 	}
@@ -87,13 +97,13 @@ func extractHTML(file io.Reader) ([]byte, error) {
 
 func (s *Server) DeleteResumeHandler(c echo.Context) error {
 	id := c.Param("id")
-	idInt, err := strconv.Atoi(id)
+	intID, err := strconv.Atoi(id)
 	if err != nil {
 		return err
 	}
-
-	repo := database.NewResumesRepository(s.db.DB())
-	err = repo.Delete(idInt)
+	s.db.Queries().DeleteResume(c.Request().Context(), sqlc.DeleteResumeParams{
+		ID: int32(intID),
+	})
 	if err != nil {
 		return err
 	}

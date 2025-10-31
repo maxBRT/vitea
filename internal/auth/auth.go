@@ -1,15 +1,19 @@
 package auth
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/resend/resend-go/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -104,4 +108,30 @@ func JWTMiddleware(tokenSecret string) echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+func MakeRefreshToken() (string, error) {
+	token := make([]byte, 32)
+	_, err := rand.Read(token)
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(token), nil
+}
+
+func SendVerificationEmail(to, link string) error {
+	client := resend.NewClient(os.Getenv("RESEND_API_KEY"))
+	fmt.Println(link)
+	html := fmt.Sprintf(`
+        <h2>Welcome to Vitae!</h2>
+        <p>To complete your registration, click below:</p>
+        <a href="%s" style="background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;">Verify My Email</a>
+    `, link)
+	_, err := client.Emails.Send(&resend.SendEmailRequest{
+		From:    "Acme <onboarding@resend.dev>",
+		To:      []string{to},
+		Subject: "Welcome to Vitae!",
+		Html:    html,
+	})
+	return err
 }

@@ -25,12 +25,12 @@ export default function ResumeHero() {
                             (555) 123-4567<br /><br />
                             <span className="text-blue-600 font-bold">### Experience</span><br />
                             **Senior Developer** at *TechCorp*
-                            <ul>
-                                <li>Led a team of 4 engineers building scalable APIs.</li>
-                                <li>Optimized CI/CD pipelines, cutting deploy time by 30%.</li>
-                                <li>Refined front-end architecture with React & TypeScript.</li>
-                            </ul>
                         </p>
+                        <ul>
+                            <li>Led a team of 4 engineers building scalable APIs.</li>
+                            <li>Optimized CI/CD pipelines, cutting deploy time by 30%.</li>
+                            <li>Refined front-end architecture with React & TypeScript.</li>
+                        </ul>
                     </CardContent>
                 </Card>
 

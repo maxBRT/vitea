@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 	"vitea/internal/auth"
-	"vitea/internal/database"
+	"vitea/internal/database/sqlc"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,17 +23,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	api := e.Group("/api")
 
 	api.GET("/verify/:token", s.VerifyHandler)
-	api.POST("/auth/login", s.LoginHandler)
+	api.POST("/refresh", s.RefreshHandler)
+	api.POST("/login", s.LoginHandler)
 	api.POST("/users", s.CreateUserHandler)
 	api.GET("/users", s.ListUsersHandler)
 	api.GET("/resumes", s.GetResumesHandler)
 	api.GET("/health", s.healthHandler)
+	api.DELETE("/users/:id", s.DeleteUserHandler)
 
 	secure := api.Group("")
 	secure.Use(auth.JWTMiddleware(s.jwtSecret))
 
-	secure.GET("/users/:id", s.GetUserHandler)
-	api.DELETE("/users/:id", s.DeleteUserHandler)
+	secure.GET("/me", s.GetUserHandler)
 	secure.POST("/resumes", s.CreateResumeHandler)
 	secure.DELETE("/resumes/:id", s.DeleteResumeHandler)
 
@@ -46,12 +47,14 @@ func (s *Server) VerifyHandler(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
-	repo := database.NewUserRepository(s.db.DB())
-	if err := repo.Verify(userID); err != nil {
+	if _, err := s.db.Queries().VerifyUser(c.Request().Context(), sqlc.VerifyUserParams{
+		ID: userID,
+	}); err != nil {
 		return err
 	}
-	if err := repo.DeleteVerifyLink(userID); err != nil {
+	if err := s.db.Queries().DeleteVerifyLink(c.Request().Context(), sqlc.DeleteVerifyLinkParams{
+		UserID: userID,
+	}); err != nil {
 		return err
 	}
 

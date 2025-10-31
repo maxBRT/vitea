@@ -32,7 +32,7 @@ export function LoginForm({
             password,
         }
         try {
-            const response = await fetch("/api/auth/login", {
+            const response = await fetch("/api/login", {
                 method: "POST",
                 body: JSON.stringify(loginData),
                 headers: {
@@ -47,6 +47,7 @@ export function LoginForm({
             }
             const data = await response.json()
             localStorage.setItem("access_token", data.access_token)
+            localStorage.setItem("refresh_token", data.refresh_token)
             navigate("/dashboard")
         } catch (e) {
             console.log(e)

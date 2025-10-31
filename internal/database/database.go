@@ -4,13 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/joho/godotenv/autoload"
 	"log"
 	"os"
 	"strconv"
 	"time"
-
-	_ "github.com/jackc/pgx/v5/stdlib"
-	_ "github.com/joho/godotenv/autoload"
+	"vitea/internal/database/sqlc"
 )
 
 // Service represents a service that interacts with a database.
@@ -20,6 +20,8 @@ type Service interface {
 	Health() map[string]string
 	// Returns the underlying database connection.
 	DB() *sql.DB
+
+	Queries() *sqlc.Queries
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
@@ -29,15 +31,13 @@ func (s *service) DB() *sql.DB {
 	return s.db
 }
 
-type service struct {
-	db *sql.DB
+func (s *service) Queries() *sqlc.Queries {
+	return s.queries
 }
 
-type Repository interface {
-	Get(id int) (Resume, error)
-	Create(resume Resume) error
-	Update(resume Resume) error
-	Delete(id int) error
+type service struct {
+	db      *sql.DB
+	queries *sqlc.Queries
 }
 
 var (
@@ -61,7 +61,8 @@ func New() Service {
 		log.Fatal(err)
 	}
 	dbInstance = &service{
-		db: db,
+		db:      db,
+		queries: sqlc.New(db),
 	}
 	return dbInstance
 }
